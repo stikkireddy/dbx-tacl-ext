@@ -2,7 +2,7 @@ import datetime
 import traceback
 from datetime import timedelta
 
-from table_acl_ext.jdbc.control import SynapseTable
+from table_acl_ext.jdbc.control import SynapseTable, SynapseConnection
 
 
 def get_previous_etl(now, now_date, etl_hour, etl_minutes):
@@ -29,3 +29,12 @@ def should_i_unload(spark, st: 'SynapseTable'):
     except Exception as e:
         traceback.print_exc()
         return True
+
+
+def unload(spark, st: 'SynapseTable', sc: 'SynapseConnection'):
+    spark.sql("""SET fs.azure.account.key.oneenvstorage.blob.core.windows.net={} """.format(sc.storage_key))
+    unload_time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    synapse_df = sc.to_spark_read_builder(spark).option("dbTable", st.synapse_table_info).load()
+    synapse_df.write.mode("overwrite").option("userMetadata", unload_time).format("delta").saveAsTable(
+        f"{st.lake_db_name}.{st.lake_table_name}")
+    spark.sql(f"DESCRIBE HISTORY `{st.lake_db_name}`.`{st.lake_table_name}`").display()

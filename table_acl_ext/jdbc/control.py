@@ -20,11 +20,11 @@ class SynapseConnection:
         return dbutils.secrets.get(self.password_scope, self.password_key)
 
     @property
-    def _storage_key(self):
+    def storage_key(self):
         return dbutils.secrets.get(self.storage_scope, self.storage_key)
 
     @property
-    def _jdbc_conn_str(self):
+    def jdbc_conn_str(self):
         return self.jdbc_url + ";" + ";".join(
             [f"{k}={v}" for k, v in self.jdbc_options.items()]) + f";password={self._password}"
 
@@ -41,7 +41,7 @@ class SynapseConnection:
     def to_spark_read_builder(self, spark):
         return spark.read \
             .format("com.databricks.spark.sqldw") \
-            .option("url", self._jdbc_conn_str) \
+            .option("url", self.jdbc_conn_str) \
             .option("tempDir", self.polybase_azure_storage_loc) \
             .option("forwardSparkAzureStorageCredentials", "true")
 
