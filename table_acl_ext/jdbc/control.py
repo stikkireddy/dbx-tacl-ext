@@ -93,7 +93,9 @@ class SynapseConnection:
 
     def save(self):
         df = spark.createDataFrame([self.__dict__])
-        df.write.mode("append").saveAsTable(f"{_synapse_config_database}.{_synapse_conns_config_table}")
+        table = f"{_synapse_config_database}.{_synapse_conns_config_table}"
+        print(f"writing to table: {table}")
+        df.write.mode("append").saveAsTable(table)
 
 @dataclass
 class SynapseTable:
@@ -138,4 +140,6 @@ class SynapseTable:
 
     def save(self):
         df = spark.createDataFrame([self.__dict__])
-        df.write.mode("append").saveAsTable(f"{_synapse_config_database}.{_synapse_tables_config_table}")
+        table = f"{_synapse_config_database}.{_synapse_tables_config_table}"
+        print(f"writing to table: {table}")
+        df.write.mode("append").saveAsTable(table)
