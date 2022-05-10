@@ -75,7 +75,7 @@ class SynapseConnection:
         # TODO: make this a bit more dynamic
         loc_str = f"LOCATION '{location}'" if location is not None else ""
         spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS {_synapse_config_database}.{_synapse_conns_config_table} (
+        CREATE TABLE IF NOT EXISTS {_synapse_conns_config_table} (
           conn_id STRING,
           jdbc_url STRING,
           jdbc_options MAP<STRING, STRING>,
@@ -93,7 +93,7 @@ class SynapseConnection:
 
     def save(self):
         df = spark.createDataFrame([self.__dict__])
-        table = f"{_synapse_config_database}.{_synapse_conns_config_table}"
+        table = f"{_synapse_conns_config_table}"
         print(f"writing to table: {table}")
         df.write.mode("append").saveAsTable(table)
 
@@ -123,7 +123,7 @@ class SynapseTable:
         # TODO: make this a bit more dynamic
         loc_str = f"LOCATION '{location}'" if location is not None else ""
         spark.sql(f"""
-        CREATE TABLE IF NOT EXISTS {_synapse_config_database}.{_synapse_tables_config_table} (
+        CREATE TABLE IF NOT EXISTS {_synapse_tables_config_table} (
           table_id STRING,
           conn_id STRING,
           synapse_table_info STRING,
@@ -140,6 +140,6 @@ class SynapseTable:
 
     def save(self):
         df = spark.createDataFrame([self.__dict__])
-        table = f"{_synapse_config_database}.{_synapse_tables_config_table}"
+        table = f"{_synapse_tables_config_table}"
         print(f"writing to table: {table}")
         df.write.mode("append").saveAsTable(table)
