@@ -23,5 +23,5 @@ def init():
     dbutils.widgets.text("table_id", "", "Table Id")
 
 
-def table_id():
+def get_table_id():
     return dbutils.widgets.get("table_id").strip()
