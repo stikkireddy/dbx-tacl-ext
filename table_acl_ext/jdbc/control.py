@@ -20,11 +20,11 @@ class SynapseConnection:
         return dbutils.secrets.get(self.password_scope, self.password_key)
 
     @property
-    def storage_key(self):
+    def _storage_key(self):
         return dbutils.secrets.get(self.storage_scope, self.storage_key)
 
     @property
-    def jdbc_conn_str(self):
+    def _jdbc_conn_str(self):
         return self.jdbc_url + ";" + ";".join(
             [f"{k}={v}" for k, v in self.jdbc_options.items()]) + f";password={self._password}"
 
@@ -38,10 +38,13 @@ class SynapseConnection:
         table = df.filter(df.conn_id == _id).limit(1).collect()
         return cls.from_row(table[0])
 
+    def set_spark_storage_session(self, spark):
+        spark.sql("""SET fs.azure.account.key.oneenvstorage.blob.core.windows.net={} """.format(self._storage_key))
+
     def to_spark_read_builder(self, spark):
         return spark.read \
             .format("com.databricks.spark.sqldw") \
-            .option("url", self.jdbc_conn_str) \
+            .option("url", self._jdbc_conn_str) \
             .option("tempDir", self.polybase_azure_storage_loc) \
             .option("forwardSparkAzureStorageCredentials", "true")
 

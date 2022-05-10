@@ -32,7 +32,7 @@ def should_i_unload(spark, st: 'SynapseTable'):
 
 
 def unload(spark, st: 'SynapseTable', sc: 'SynapseConnection'):
-    spark.sql("""SET fs.azure.account.key.oneenvstorage.blob.core.windows.net={} """.format(sc.storage_key))
+    sc.set_spark_storage_session(spark)
     unload_time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     synapse_df = sc.to_spark_read_builder(spark).option("dbTable", st.synapse_table_info).load()
     synapse_df.write.mode("overwrite").option("userMetadata", unload_time).format("delta").saveAsTable(
