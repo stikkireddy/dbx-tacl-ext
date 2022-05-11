@@ -100,14 +100,16 @@ def clean_identifier(table_identifier):
 
 @dataclass
 class DatabaseTable:
-    database: str
     table: str
+    database: str = "default"
     catalog: Optional[str] = None
 
     @classmethod
     def from_table_identifier(cls, table_identifier):
         cleaned_id = clean_identifier(table_identifier)
         parts = cleaned_id.split(".")
+        if len(parts) == 1:
+            return cls(table=parts[0])
         if len(parts) == 2:
             return cls(database=parts[0], table=parts[1])
         elif len(parts) == 3:
