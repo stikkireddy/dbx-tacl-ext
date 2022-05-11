@@ -101,7 +101,8 @@ class SynapseConnection:
         return [SynapseConnection.from_row(row) for row in rows]
 
     def md5_checksum(self):
-        return hashlib.md5(json.dumps(self.__dict__, sort_keys=True).encode('utf-8')).hexdigest()
+        valid_dict = {k: v for k, v in self.__dict__.items() if k != "conn_id"}
+        return hashlib.md5(json.dumps(valid_dict, sort_keys=True).encode('utf-8')).hexdigest()
 
 
 def clean_identifier(table_identifier):
@@ -188,4 +189,5 @@ class SynapseTable:
         return None
 
     def md5_checksum(self):
-        return hashlib.md5(json.dumps(self.__dict__, sort_keys=True).encode('utf-8')).hexdigest()
+        valid_dict = {k:v for k, v in self.__dict__.items() if k != "table_id"}
+        return hashlib.md5(json.dumps(valid_dict, sort_keys=True).encode('utf-8')).hexdigest()
