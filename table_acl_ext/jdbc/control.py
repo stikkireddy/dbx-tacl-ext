@@ -104,6 +104,12 @@ class SynapseConnection:
         valid_dict = {k: v for k, v in self.__dict__.items() if k != "conn_id"}
         return hashlib.md5(json.dumps(valid_dict, sort_keys=True).encode('utf-8')).hexdigest()
 
+    def validate(self):
+        assert self._password is not None, "password is invalid"
+        assert self._storage_key is not None, "storage key is invalid"
+        self.set_spark_storage_session()
+        self.to_spark_read_builder().option("query", "SELECT 1 as col").load().count()
+
 
 def clean_identifier(table_identifier):
     return table_identifier.replace("`", "")
