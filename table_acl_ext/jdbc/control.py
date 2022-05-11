@@ -21,6 +21,31 @@ _synapse_conns_config_table = config("SYNAPSE_CONNS_CONFIG_TABLE",
                                      default=f"{_synapse_config_database}.connections")
 
 
+def clean_identifier(table_identifier):
+    return table_identifier.replace("`", "")
+
+
+@dataclass
+class DatabaseTable:
+    table: str
+    database: str = "default"
+    catalog: Optional[str] = None
+
+    @classmethod
+    def from_table_identifier(cls, table_identifier):
+        cleaned_id = clean_identifier(table_identifier)
+        parts = cleaned_id.split(".")
+        if len(parts) == 1:
+            return cls(table=parts[0])
+        if len(parts) == 2:
+            return cls(database=parts[0], table=parts[1])
+        elif len(parts) == 3:
+            return cls(database=parts[1], table=parts[2])
+        else:
+            print(f"Illegal Identifier: {table_identifier}")
+            return None
+
+
 @dataclass
 class SynapseConnection:
     jdbc_url: str
@@ -89,7 +114,7 @@ class SynapseConnection:
         USING delta
         """ + loc_str)
 
-    def save(self):
+    def _save(self):
         df = spark.createDataFrame([self.__dict__])
         table = f"{_synapse_conns_config_table}"
         print(f"writing to table: {table} for connection id: {self.conn_id}")
@@ -110,30 +135,15 @@ class SynapseConnection:
         self.set_spark_storage_session()
         self.to_spark_read_builder().option("query", "SELECT 1 as col").load().count()
 
-
-def clean_identifier(table_identifier):
-    return table_identifier.replace("`", "")
-
-
-@dataclass
-class DatabaseTable:
-    table: str
-    database: str = "default"
-    catalog: Optional[str] = None
-
-    @classmethod
-    def from_table_identifier(cls, table_identifier):
-        cleaned_id = clean_identifier(table_identifier)
-        parts = cleaned_id.split(".")
-        if len(parts) == 1:
-            return cls(table=parts[0])
-        if len(parts) == 2:
-            return cls(database=parts[0], table=parts[1])
-        elif len(parts) == 3:
-            return cls(database=parts[1], table=parts[2])
-        else:
-            print(f"Illegal Identifier: {table_identifier}")
-            return None
+    @staticmethod
+    def create_if_not_exists(data):
+        input_chk_sum = hashlib.md5(json.dumps(data, sort_keys=True).encode('utf-8')).hexdigest()
+        for conn in SynapseConnection.list():
+            if input_chk_sum == conn.md5_checksum():
+                raise Exception(f"Connection already exists: {conn}")
+        sc = SynapseConnection(**data)
+        sc.validate()
+        sc._save()
 
 
 @dataclass
@@ -175,11 +185,30 @@ class SynapseTable:
         USING delta
         """ + loc_str)
 
-    def save(self):
+    def _save(self):
         df = spark.createDataFrame([self.__dict__])
         table = f"{_synapse_tables_config_table}"
         print(f"writing to table: {table} for table id: {self.table_id}")
         df.write.mode("append").saveAsTable(table)
+
+    @staticmethod
+    def create_if_not_exists(data):
+        st = SynapseTable(**data)
+        for table in SynapseTable.list():
+            if st.synapse_table_info == table.synapse_table_info and st.lake_db_name == table.lake_db_name and st.lake_table_name == table.lake_table_name:
+                raise Exception(f"Table already exists: {table}")
+        sc = SynapseConnection.from_synapse_table(st)
+        # count check
+        sc.set_spark_storage_session()
+        sc.to_spark_read_builder().option("dbTable", st.synapse_table_info).load().count()
+        if st.lake_table_loc is None or st.lake_table_loc != "":
+            # create table
+            sc.to_spark_read_builder().option("dbTable", st.synapse_table_info).load().filter("1==2").write.mode(
+                "append").saveAsTable(f"{st.lake_db_name}.{st.lake_table_name}")
+        else:
+            sc.to_spark_read_builder().option("dbTable", st.synapse_table_info).load().filter("1==2").write.mode(
+                "append").saveAsTable(f"{st.lake_db_name}.{st.lake_table_name}", path=st.lake_table_loc)
+        st._save()
 
     @staticmethod
     def list():
