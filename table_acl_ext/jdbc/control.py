@@ -166,7 +166,10 @@ class SynapseTable:
         return [SynapseTable.from_row(row) for row in rows]
 
     @staticmethod
-    def find(synapse_tables: List['SynapseTable'], table_id: DatabaseTable) -> Optional['SynapseTable']:
+    def find(synapse_tables: List['SynapseTable'], table_id: Optional[DatabaseTable]) -> Optional['SynapseTable']:
+        if table_id is None:
+            print("Invalid table identifier. Unable to validate synapse table.")
+            return None
         for table in synapse_tables:
             if table.lake_db_name == table_id.database and table.lake_table_name == table_id.table:
                 return table
