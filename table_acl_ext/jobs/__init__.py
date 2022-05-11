@@ -1,6 +1,6 @@
 import time
 
-import multiprocessing
+from multiprocessing.pool import ThreadPool
 from typing import List, Dict
 
 from databricks_cli.configure.config import _get_api_client
@@ -9,8 +9,7 @@ from databricks_cli.sdk.service import JobsService
 from decouple import config
 
 _synapse_unload_job_id = config("SYNAPSE_UNLOAD_JOB_ID",
-                                cast=str,
-                                default="synapse_config")
+                                cast=str)
 
 
 def is_job_done(job_run_info):
@@ -33,5 +32,5 @@ def execute(params):
 
 
 def par_execute(params_list: List[Dict[str, str]]):
-    with multiprocessing.Pool(processes=3) as pool:
+    with ThreadPool(processes=3) as pool:
         return pool.map(execute, params_list)
