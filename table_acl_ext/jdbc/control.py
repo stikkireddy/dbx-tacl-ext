@@ -21,7 +21,6 @@ _synapse_conns_config_table = config("SYNAPSE_CONNS_CONFIG_TABLE",
 
 @dataclass
 class SynapseConnection:
-    conn_id: str
     jdbc_url: str
     jdbc_options: Dict[str, str]
     polybase_azure_storage_loc: str
@@ -29,6 +28,7 @@ class SynapseConnection:
     password_key: str
     storage_scope: str
     storage_key: str
+    conn_id: str = str(uuid.uuid4())
 
     @property
     def _password(self):
@@ -87,25 +87,22 @@ class SynapseConnection:
         USING delta
         """ + loc_str)
 
-    def __post_init__(self):
-        if self.conn_id is None:
-            self.conn_id = str(uuid.uuid4())
-
     def save(self):
         df = spark.createDataFrame([self.__dict__])
         table = f"{_synapse_conns_config_table}"
         print(f"writing to table: {table}")
         df.write.mode("append").saveAsTable(table)
 
+
 @dataclass
 class SynapseTable:
-    table_id: str
     conn_id: str
     synapse_table_info: str
     lake_db_name: str
     lake_table_name: str
     etl_hour: str
     etl_minutes: str
+    table_id: str = str(uuid.uuid4())
 
     @classmethod
     def from_row(cls, row):
@@ -133,10 +130,6 @@ class SynapseTable:
           etl_minutes STRING)
         USING delta
         """ + loc_str)
-
-    def __post_init__(self):
-        if self.table_id is None:
-            self.table_id = str(uuid.uuid4())
 
     def save(self):
         df = spark.createDataFrame([self.__dict__])
