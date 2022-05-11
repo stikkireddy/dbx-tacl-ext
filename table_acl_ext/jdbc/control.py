@@ -3,6 +3,7 @@ import json
 import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Optional
+import urllib.parse
 
 from decouple import config
 
@@ -63,7 +64,7 @@ class SynapseConnection:
 
     @property
     def _password(self):
-        return dbutils.secrets.get(self.password_scope, self.password_key)
+        return urllib.parse.quote_plus(dbutils.secrets.get(self.password_scope, self.password_key))
 
     @property
     def _storage_key(self):
