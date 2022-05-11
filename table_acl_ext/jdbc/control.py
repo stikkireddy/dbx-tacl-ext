@@ -25,6 +25,10 @@ def clean_identifier(table_identifier):
     return table_identifier.replace("`", "")
 
 
+def get_delete_stmt(table_identifier, where_col, where_value):
+    return f"DELETE FROM {table_identifier} WHERE {where_col} = '{where_value}'"
+
+
 @dataclass
 class DatabaseTable:
     table: str
@@ -118,6 +122,7 @@ class SynapseConnection:
         df = spark.createDataFrame([self.__dict__])
         table = f"{_synapse_conns_config_table}"
         print(f"writing to table: {table} for connection id: {self.conn_id}")
+        print(f"to delete please run: {get_delete_stmt(table, 'conn_id', self.conn_id)}")
         df.write.mode("append").saveAsTable(table)
 
     @staticmethod
@@ -189,6 +194,7 @@ class SynapseTable:
         df = spark.createDataFrame([self.__dict__])
         table = f"{_synapse_tables_config_table}"
         print(f"writing to table: {table} for table id: {self.table_id}")
+        print(f"to delete please run: {get_delete_stmt(table, 'table_id', self.table_id)}")
         df.write.mode("append").saveAsTable(table)
 
     @staticmethod
@@ -226,5 +232,5 @@ class SynapseTable:
         return None
 
     def md5_checksum(self):
-        valid_dict = {k:v for k, v in self.__dict__.items() if k != "table_id"}
+        valid_dict = {k: v for k, v in self.__dict__.items() if k != "table_id"}
         return hashlib.md5(json.dumps(valid_dict, sort_keys=True).encode('utf-8')).hexdigest()
