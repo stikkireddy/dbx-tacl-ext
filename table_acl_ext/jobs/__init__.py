@@ -33,5 +33,5 @@ def execute(params):
 
 
 def par_execute(params_list: List[Dict[str, str]]):
-    with multiprocessing.pool.ThreadPool(5) as pool:
+    with multiprocessing.Pool(processes=3) as pool:
         return pool.map(execute, params_list)
