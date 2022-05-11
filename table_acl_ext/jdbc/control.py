@@ -207,7 +207,7 @@ class SynapseTable:
         # count check
         sc.set_spark_storage_session()
         sc.to_spark_read_builder().option("dbTable", st.synapse_table_info).load().count()
-        if st.lake_table_loc is None or st.lake_table_loc != "":
+        if st.lake_table_loc is None or st.lake_table_loc == "":
             # create table
             sc.to_spark_read_builder().option("dbTable", st.synapse_table_info).load().filter("1==2").write.mode(
                 "append").saveAsTable(f"{st.lake_db_name}.{st.lake_table_name}")
