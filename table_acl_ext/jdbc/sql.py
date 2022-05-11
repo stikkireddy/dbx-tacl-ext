@@ -22,4 +22,4 @@ def find_synapse_tables(sql_stmt):
 def sql(sql_stmt):
     table_ids = [{TABLE_ID_WIDGET_PARAM: synapse_table.table_id} for synapse_table in find_synapse_tables(sql_stmt)]
     print(par_execute(table_ids))
-    spark.sql(sql_stmt)
+    return spark.sql(sql_stmt)
