@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List, Optional
 
 from decouple import config
 
@@ -94,6 +94,29 @@ class SynapseConnection:
         df.write.mode("append").saveAsTable(table)
 
 
+def clean_identifier(table_identifier):
+    return table_identifier.replace("`", "")
+
+
+@dataclass
+class DatabaseTable:
+    database: str
+    table: str
+    catalog: Optional[str] = None
+
+    @classmethod
+    def from_table_identifier(cls, table_identifier):
+        cleaned_id = clean_identifier(table_identifier)
+        parts = cleaned_id.split(".")
+        if len(parts) == 2:
+            return cls(database=parts[0], table=parts[1])
+        elif len(parts) == 3:
+            return cls(database=parts[1], table=parts[2])
+        else:
+            print(f"Illegal Identifier: {table_identifier}")
+            return None
+
+
 @dataclass
 class SynapseTable:
     conn_id: str
@@ -136,3 +159,15 @@ class SynapseTable:
         table = f"{_synapse_tables_config_table}"
         print(f"writing to table: {table} for table id: {self.table_id}")
         df.write.mode("append").saveAsTable(table)
+
+    @staticmethod
+    def list():
+        rows = spark.table(_synapse_tables_config_table).collect()
+        return [SynapseTable.from_row(row) for row in rows]
+
+    @staticmethod
+    def find(synapse_tables: List['SynapseTable'], table_id: DatabaseTable) -> Optional['SynapseTable']:
+        for table in synapse_tables:
+            if table.lake_db_name == table_id.database and table.lake_table_name == table_id.table:
+                return table
+        return None

@@ -19,7 +19,8 @@ setup(
         'requests>=2.17.3',
         'databricks-cli>=0.16.2',
         'setuptools==45',
-        'python-decouple>=3.6'
+        'python-decouple>=3.6',
+        'sql-metadata>=2.5.0',
 
     ],
     classifiers=[
