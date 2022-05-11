@@ -64,7 +64,7 @@ class SynapseConnection:
 
     @property
     def _password(self):
-        return urllib.parse.quote_plus(dbutils.secrets.get(self.password_scope, self.password_key))
+        return dbutils.secrets.get(self.password_scope, self.password_key)
 
     @property
     def _storage_key(self):
