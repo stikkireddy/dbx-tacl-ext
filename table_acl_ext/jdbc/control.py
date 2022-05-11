@@ -145,6 +145,7 @@ class SynapseTable:
     etl_hour: str
     etl_minutes: str
     table_id: str = str(uuid.uuid4())
+    lake_table_loc: str = None
 
     @classmethod
     def from_row(cls, row):
@@ -168,6 +169,7 @@ class SynapseTable:
           synapse_table_info STRING,
           lake_db_name STRING,
           lake_table_name STRING,
+          lake_table_loc STRING,
           etl_hour STRING,
           etl_minutes STRING)
         USING delta
