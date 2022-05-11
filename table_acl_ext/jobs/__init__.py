@@ -8,8 +8,10 @@ from databricks_cli.configure.provider import get_config
 from databricks_cli.sdk.service import JobsService
 from decouple import config
 
-_synapse_unload_job_id = config("SYNAPSE_UNLOAD_JOB_ID",
-                                cast=str)
+
+def get_unload_job_id():
+    return config("SYNAPSE_UNLOAD_JOB_ID",
+                  cast=str)
 
 
 def is_job_done(job_run_info):
@@ -18,7 +20,7 @@ def is_job_done(job_run_info):
 
 def execute(params):
     js = JobsService(_get_api_client(get_config()))
-    job_run_id = js.run_now(job_id=_synapse_unload_job_id,
+    job_run_id = js.run_now(job_id=get_unload_job_id(),
                             notebook_params=params)
 
     run_id = job_run_id["run_id"]
