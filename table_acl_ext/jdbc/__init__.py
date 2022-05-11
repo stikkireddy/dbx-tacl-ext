@@ -32,10 +32,11 @@ def _get_dbutils():
 dbutils = _get_dbutils()
 spark = _get_active_spark_session()
 
+TABLE_ID_WIDGET_PARAM = "table_id"
 
 def init():
-    dbutils.widgets.text("table_id", "", "Table Id")
+    dbutils.widgets.text(TABLE_ID_WIDGET_PARAM, "", "Table Id")
 
 
 def get_table_id():
-    return dbutils.widgets.get("table_id").strip()
+    return dbutils.widgets.get(TABLE_ID_WIDGET_PARAM).strip()

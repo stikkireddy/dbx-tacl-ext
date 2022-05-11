@@ -2,11 +2,14 @@ from typing import List
 
 from sql_metadata import Parser
 
+from table_acl_ext.jdbc import TABLE_ID_WIDGET_PARAM, spark
 from table_acl_ext.jdbc.control import DatabaseTable, SynapseTable
+from table_acl_ext.jobs import par_execute
 
 
 def get_tables(sql_stmt) -> List[DatabaseTable]:
-    return [DatabaseTable.from_table_identifier(table) for table in Parser(sql_stmt).tables]
+    unique_table_list = list(set(Parser(sql_stmt).tables))
+    return [DatabaseTable.from_table_identifier(table) for table in unique_table_list]
 
 
 def find_synapse_tables(sql_stmt):
@@ -17,4 +20,6 @@ def find_synapse_tables(sql_stmt):
 
 
 def sql(sql_stmt):
-    return find_synapse_tables(sql_stmt)
+    table_ids = [{TABLE_ID_WIDGET_PARAM: synapse_table.table_id} for synapse_table in find_synapse_tables(sql_stmt)]
+    print(par_execute(table_ids))
+    spark.sql(sql_stmt)
