@@ -32,9 +32,9 @@ def should_i_unload(spark, st: 'SynapseTable'):
 
 
 def unload(spark, st: 'SynapseTable', sc: 'SynapseConnection'):
-    sc.set_spark_storage_session(spark)
+    sc.set_spark_storage_session()
     unload_time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-    synapse_df = sc.to_spark_read_builder(spark).option("dbTable", st.synapse_table_info).load()
+    synapse_df = sc.to_spark_read_builder().option("dbTable", st.synapse_table_info).load()
     synapse_df.write.mode("overwrite").option("userMetadata", unload_time).format("delta").saveAsTable(
         f"{st.lake_db_name}.{st.lake_table_name}")
     spark.sql(f"DESCRIBE HISTORY `{st.lake_db_name}`.`{st.lake_table_name}`").display()
