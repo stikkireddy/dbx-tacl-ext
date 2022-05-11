@@ -1,3 +1,5 @@
+import hashlib
+import json
 import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Optional
@@ -93,6 +95,14 @@ class SynapseConnection:
         print(f"writing to table: {table} for connection id: {self.conn_id}")
         df.write.mode("append").saveAsTable(table)
 
+    @staticmethod
+    def list():
+        rows = spark.table(_synapse_conns_config_table).collect()
+        return [SynapseConnection.from_row(row) for row in rows]
+
+    def md5_checksum(self):
+        return hashlib.md5(json.dumps(self.__dict__, sort_keys=True).encode('utf-8')).hexdigest()
+
 
 def clean_identifier(table_identifier):
     return table_identifier.replace("`", "")
@@ -176,3 +186,6 @@ class SynapseTable:
             if table.lake_db_name == table_id.database and table.lake_table_name == table_id.table:
                 return table
         return None
+
+    def md5_checksum(self):
+        return hashlib.md5(json.dumps(self.__dict__, sort_keys=True).encode('utf-8')).hexdigest()
