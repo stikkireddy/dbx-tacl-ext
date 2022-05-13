@@ -47,7 +47,7 @@ class SerializableStorageWrapper:
 class Widget(abc.ABC):
 
     @abc.abstractmethod
-    def name(self) -> str:
+    def get_name(self) -> str:
         pass
 
     @abc.abstractmethod
@@ -72,7 +72,7 @@ class TextWidget(Widget):
     def dict(self):
         return self.__dict__
 
-    def name(self) -> str:
+    def get_name(self) -> str:
         return self.name
 
     def create(self):

@@ -18,7 +18,7 @@ class ADLSSPCredentialsManager(CredentialsManager):
 
     def get_databricks_secrets(self) -> List[DatabricksSecret]:
         widgets = self.widgets()
-        widget_values = {widget.name(): widget.get() for widget in widgets}
+        widget_values = {widget.get_name(): widget.get() for widget in widgets}
         groups = widget_values[self.GROUPS]
         secret_value = SerializableStorageWrapper(AzureBlobFileSystem, options={
             self.ACCOUNT_NAME: widget_values[self.ACCOUNT_NAME],
