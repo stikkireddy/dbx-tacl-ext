@@ -20,12 +20,12 @@ def deserialize_fs(serialized_fs) -> AbstractFileSystem:
 
 @deserialize_fs.register
 def _(serialized_fs: str) -> AbstractFileSystem:
-    return cloudpickle.dumps(base64.b64decode(serialized_fs.encode("utf-8")))
+    return cloudpickle.loads(base64.b64decode(serialized_fs.encode("utf-8")))
 
 
 @deserialize_fs.register
 def _(serialized_fs: bytes) -> AbstractFileSystem:
-    return cloudpickle.dumps(base64.b64decode(serialized_fs))
+    return cloudpickle.loads(base64.b64decode(serialized_fs))
 
 
 class SerializableStorageWrapper:
