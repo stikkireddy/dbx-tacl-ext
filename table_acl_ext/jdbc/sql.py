@@ -2,7 +2,8 @@ from typing import List
 
 from sql_metadata import Parser
 
-from table_acl_ext.jdbc import TABLE_ID_WIDGET_PARAM, spark
+from table_acl_ext.jdbc import TABLE_ID_WIDGET_PARAM
+from table_acl_ext import spark
 from table_acl_ext.jdbc.control import DatabaseTable, SynapseTable
 from table_acl_ext.jdbc.unload import should_i_unload
 from table_acl_ext.jobs import par_execute

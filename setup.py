@@ -21,7 +21,8 @@ setup(
         'setuptools==45',
         'python-decouple>=3.6',
         'sql-metadata>=2.5.0',
-
+        'adlfs',
+        'cloudpickle==2.0.0'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

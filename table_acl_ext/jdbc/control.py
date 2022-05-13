@@ -7,7 +7,7 @@ import urllib.parse
 
 from decouple import config
 
-from table_acl_ext.jdbc import dbutils, spark
+from table_acl_ext import dbutils, spark
 
 _synapse_config_database = config("SYNAPSE_CONFIG_DATABASE",
                                   cast=str,
