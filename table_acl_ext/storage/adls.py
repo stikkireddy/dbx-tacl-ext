@@ -52,7 +52,6 @@ class ADLSAccessKeyCredentialsManager(CredentialsManager):
     def get_databricks_secrets(self) -> List[DatabricksSecret]:
         widgets = self.widgets()
         widget_values = {widget.get_name(): widget.get() for widget in widgets}
-        print(widget_values)
         groups = widget_values[self.GROUPS]
         secret_value = SerializableStorageWrapper(AzureBlobFileSystem, options={
             self.ACCOUNT_NAME: widget_values[self.ACCOUNT_NAME],
