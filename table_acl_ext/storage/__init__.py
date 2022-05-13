@@ -31,12 +31,7 @@ def _(serialized_fs: bytes) -> AbstractFileSystem:
 class SerializableStorageWrapper:
 
     def __init__(self, fs_klass: Type[AbstractFileSystem], options: Dict[str, str]):
-        self._fs_klass = fs_klass
-        self._options = options
-
-    @property
-    def fs_client(self) -> AbstractFileSystem:
-        return self._fs_klass(**self._options)
+        self.fs_client = fs_klass(**options)
 
     @property
     def serialized_fs(self):
