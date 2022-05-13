@@ -2,7 +2,7 @@ import abc
 import base64
 from dataclasses import dataclass
 from functools import singledispatch
-from typing import Dict, Type, List
+from typing import Dict, Type, List, Optional
 
 import cloudpickle
 from databricks_cli.configure.config import _get_api_client
@@ -11,6 +11,12 @@ from databricks_cli.sdk import SecretService
 from fsspec import AbstractFileSystem
 
 from table_acl_ext import dbutils
+
+STORAGE_SCOPE_PREFIX = "__storage__"
+
+
+def get_scope(group_name):
+    return f"{STORAGE_SCOPE_PREFIX}{group_name}"
 
 
 @singledispatch
@@ -26,6 +32,31 @@ def _(serialized_fs: str) -> AbstractFileSystem:
 @deserialize_fs.register
 def _(serialized_fs: bytes) -> AbstractFileSystem:
     return cloudpickle.loads(base64.b64decode(serialized_fs))
+
+
+def list_containers():
+    ss = SecretService(_get_api_client(get_config()))
+    scopes = ss.list_scopes()["scopes"]
+    containers = []
+    for scope in scopes:
+        if scope["name"].startswith(STORAGE_SCOPE_PREFIX):
+            secret_list = ss.list_secrets(scope["name"])
+            for secret in secret_list["secrets"]:
+                containers.append(secret["key"])
+    for container in list(set(containers)):
+        print(container)
+
+
+def get_client(container_name) -> AbstractFileSystem:
+    ss = SecretService(_get_api_client(get_config()))
+    scopes = ss.list_scopes()["scopes"]
+    for scope in scopes:
+        if scope["name"].startswith(STORAGE_SCOPE_PREFIX):
+            secret_list = ss.list_secrets(scope["name"])
+            for secret in secret_list["secrets"]:
+                if secret["key"] == container_name:
+                    return deserialize_fs(dbutils.secrets.get(scope["name"], secret["key"]))
+    raise Exception("Unable to find container with proper access")
 
 
 class SerializableStorageWrapper:
