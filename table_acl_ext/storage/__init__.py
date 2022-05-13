@@ -34,7 +34,7 @@ def _(serialized_fs: bytes) -> AbstractFileSystem:
     return cloudpickle.loads(base64.b64decode(serialized_fs))
 
 
-def list_containers():
+def list_storages():
     ss = SecretService(_get_api_client(get_config()))
     scopes = ss.list_scopes()["scopes"]
     containers = []
