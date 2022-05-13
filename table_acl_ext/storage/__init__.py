@@ -73,8 +73,8 @@ class TextWidget(Widget):
     def create(self):
         dbutils.widgets.text(**self.dict())
 
-    def get(self):
-        dbutils.widgets.get(self.name)
+    def get(self) -> str:
+        return dbutils.widgets.get(self.name)
 
 
 @dataclass
