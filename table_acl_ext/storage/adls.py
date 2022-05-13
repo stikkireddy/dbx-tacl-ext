@@ -40,5 +40,5 @@ class ADLSSPCredentialsManager(CredentialsManager):
             TextWidget(self.CLIENT_ID, "", "App Client ID"),
             TextWidget(self.CLIENT_SECRET, "", "App Client Secret"),
             TextWidget(self.TENANT_ID, "", "Azure AAD Tenant ID"),
-            TextWidget(self.GROUPS, "", "Azure AAD Tenant ID"),
+            TextWidget(self.GROUPS, "", "Groups"),
         ]
