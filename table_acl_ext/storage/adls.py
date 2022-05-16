@@ -2,8 +2,8 @@ from typing import List
 
 from adlfs import AzureBlobFileSystem
 
-from table_acl_ext.storage import CredentialsManager, Widget, DatabricksSecret, TextWidget, SerializableStorageWrapper, \
-    get_scope
+from table_acl_ext.storage import CredentialsManager, Widget, DatabricksSecret, TextWidget, \
+    SerializableStorageWrapper, get_scope
 
 
 class ADLSSPCredentialsManager(CredentialsManager):
