@@ -15,4 +15,8 @@ manager.init()
 
 # COMMAND ----------
 
+dbutils.notebook.exit()
+
+# COMMAND ----------
+
 manager.register()
