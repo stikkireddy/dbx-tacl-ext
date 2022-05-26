@@ -86,7 +86,9 @@ class SynapseConnection:
         return cls.from_row(table[0])
 
     def set_spark_storage_session(self):
-        spark.sql("""SET fs.azure.account.key.oneenvstorage.blob.core.windows.net={} """.format(self._storage_key))
+        storage_container = self.polybase_azure_storage_loc.split("@")[1].split(".")[0]
+        spark.sql("""SET fs.azure.account.key.{}.blob.core.windows.net={} """.format(storage_container,
+                                                                                     self._storage_key))
 
     def to_spark_read_builder(self):
         return spark.read \
