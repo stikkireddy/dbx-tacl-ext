@@ -91,6 +91,8 @@ class SynapseConnection:
                                                                                      self._storage_key))
 
     def to_spark_read_builder(self):
+        print(f"[CONNECTION_STRING]: {self._jdbc_conn_str}")
+        print(f"[TEMP STORAGE]: {self.polybase_azure_storage_loc}")
         return spark.read \
             .format("com.databricks.spark.sqldw") \
             .option("url", self._jdbc_conn_str) \
@@ -200,6 +202,7 @@ class SynapseTable:
         print(f"to delete please run: {get_delete_stmt(table, 'table_id', self.table_id)}")
         df.write.mode("append").saveAsTable(table)
 
+    # create table if not exists
     @staticmethod
     def create_if_not_exists(data):
         st = SynapseTable(**data)
