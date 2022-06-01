@@ -21,10 +21,3 @@ payload = {
 }
 SynapseTable.create_if_not_exists(payload)
 
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC SELECT * FROM synapse_tmp.users2
-
-# COMMAND ----------
-

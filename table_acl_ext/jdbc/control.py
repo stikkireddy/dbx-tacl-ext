@@ -89,6 +89,8 @@ class SynapseConnection:
         storage_container = self.polybase_azure_storage_loc.split("@")[1].split(".")[0]
         spark.sql("""SET fs.azure.account.key.{}.blob.core.windows.net={} """.format(storage_container,
                                                                                      self._storage_key))
+        spark.sql("""SET fs.azure.account.key.{}.dfs.core.windows.net={} """.format(storage_container,
+                                                                                    self._storage_key))
 
     def to_spark_read_builder(self):
         print(f"[CONNECTION_STRING]: {self._jdbc_conn_str}")
@@ -97,7 +99,9 @@ class SynapseConnection:
             .format("com.databricks.spark.sqldw") \
             .option("url", self._jdbc_conn_str) \
             .option("tempDir", self.polybase_azure_storage_loc) \
-            .option("forwardSparkAzureStorageCredentials", "true")
+            .option("useAzureMSI", "true")
+        # TODO add environment variable option
+        # .option("forwardSparkAzureStorageCredentials", "true")
 
     @classmethod
     def from_synapse_table(cls, st: 'SynapseTable', table_name=_synapse_conns_config_table):
