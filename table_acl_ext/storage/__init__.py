@@ -39,10 +39,14 @@ def list_storages():
     scopes = ss.list_scopes()["scopes"]
     containers = []
     for scope in scopes:
-        if scope["name"].startswith(STORAGE_SCOPE_PREFIX):
-            secret_list = ss.list_secrets(scope["name"])
-            for secret in secret_list["secrets"]:
-                containers.append(secret["key"])
+        try:
+            if scope["name"].startswith(STORAGE_SCOPE_PREFIX):
+                secret_list = ss.list_secrets(scope["name"])
+                for secret in secret_list["secrets"]:
+                    containers.append(secret["key"])
+        except Exception as e:
+            print(e)
+            pass
     for container in list(set(containers)):
         print(container)
 
@@ -51,11 +55,15 @@ def get_client(container_name) -> AbstractFileSystem:
     ss = SecretService(_get_api_client(get_config()))
     scopes = ss.list_scopes()["scopes"]
     for scope in scopes:
-        if scope["name"].startswith(STORAGE_SCOPE_PREFIX):
-            secret_list = ss.list_secrets(scope["name"])
-            for secret in secret_list["secrets"]:
-                if secret["key"] == container_name:
-                    return deserialize_fs(dbutils.secrets.get(scope["name"], secret["key"]))
+        try:
+            if scope["name"].startswith(STORAGE_SCOPE_PREFIX):
+                secret_list = ss.list_secrets(scope["name"])
+                for secret in secret_list["secrets"]:
+                    if secret["key"] == container_name:
+                        return deserialize_fs(dbutils.secrets.get(scope["name"], secret["key"]))
+        except Exception as e:
+            print(e)
+            pass
     raise Exception("Unable to find container with proper access")
 
 
